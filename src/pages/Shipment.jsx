@@ -6,11 +6,13 @@ import { DetailPageContext } from "../helper/Context.js";
 import Cookies from "js-cookie";
 import { authApi, endpoints } from "../helper/Apis.js";
 import { ToastContainer, toast } from 'react-toastify';
+import { AddressAutofill, AddressMinimap } from "@mapbox/search-js-react";
+
 
 export default function Shipment() {
     const [index, setIndex] = React.useState(0);
     const {shipmentContext, setShipmentContext, transactionContext, setTransactionContext, orderContext , setOrderContext} = useContext(DetailPageContext)
-
+    const [minimapFeature, setMinimapFeature]=useState()
     const SetIndex = function(index) {
         if(index===3){
             setIndex(3)
@@ -45,8 +47,12 @@ export default function Shipment() {
     const [quantity, setQuantity]=useState(0)
     const [price,setPrice] = useState(0)
     const [transactionDate, setTransactionDate] = useState("")
-    const [origin, setOrigin] = useState("")
-    const [destination, setDestination] = useState("")
+    const [originAddress, setOriginAddress] = useState("")
+    const [originAddressApartmentNumber, setOriginAddressApartmentNumber] = useState("")
+    const [originAddressCity, setOriginAddressCity] = useState("")
+    const [originAddressState, setOriginAddressState] = useState("")
+    const [originAddressCountry, setOriginAddressCountry] = useState("")
+    const [destinationAddress, setDestinationAddress] = useState("")
 
     const [shipmentDate, setShipmentDate]=useState("")
     const [estimateDate, setEstimateDate]=useState("")
@@ -205,8 +211,8 @@ export default function Shipment() {
             "estimated_arrival_time": estimateDate,
             "arrival_time": arrivalDate,
             "capacity": capacity,
-            "origin_address": origin,
-            "destination_address": destination
+            "origin_address": originAddress,
+            "destination_address": destinationAddress
         }
 
         const token = Cookies.get("token")
@@ -248,6 +254,11 @@ export default function Shipment() {
         //     toast.success(response.data.message)
         // }
     }
+
+    const handleAutofillRetrieve = (response) => {
+        setMinimapFeature(response.features[0])
+    }
+
     return (
         <>
             <ToastContainer position="top-right"/>
@@ -626,28 +637,95 @@ export default function Shipment() {
 
 
                                               </section>}
-                                            {index === 2 &&
+                                            {index === 0 &&
                                               <section className="w-full">
                                                   <form className="mx-auto">
-                                                      <div className="mb-4">
-                                                          <label htmlFor="origin" className="block mb-2">Origin</label>
-                                                          <input type="text" className="w-full rounded-md" id="origin"
-                                                                 name="origin"
-                                                                 placeholder="Enter Origin"
-                                                                value={origin}
-                                                                 onChange={(e)=>setOrigin(e.target.value)}
-                                                          />
+                                                      <AddressAutofill
+                                                        onRetrieve={handleAutofillRetrieve}
+                                                        accessToken={import.meta.env.VITE_MAP_BOX_API_KEY}>
+                                                          <div className="mb-4">
+                                                              <label htmlFor="origin" className="block mb-2">Origin</label>
+                                                                  <input autoComplete="address-line1"
+                                                                         type="text" className="w-full rounded-md"
+                                                                         id="origin"
+                                                                         name="origin"
+                                                                         placeholder="Enter Origin"
+                                                                         value={originAddress}
+                                                                         onChange={(e) => setOriginAddress(e.target.value)}
+                                                                  />
+                                                          </div>
+                                                        </AddressAutofill>
+
+                                                      <div className="mb-4 flex gap-4">
+                                                              <div className="">
+                                                                  <label htmlFor="city" className="block mb-2">City</label>
+
+                                                                      <input autoComplete="address-level2"
+                                                                             type="text" className="w-full rounded-md"
+                                                                             id="city"
+                                                                             name="city"
+                                                                             placeholder="Enter City"
+                                                                             value={originAddressCity}
+                                                                             onChange={(e) => setOriginAddressCity(e.target.value)}
+                                                                      />
+                                                              </div>
+                                                          <div className="">
+                                                              <label htmlFor="state"
+                                                                     className="block mb-2">State/Region</label>
+
+                                                                  <input autoComplete="address-level1"
+                                                                         type="text" className="w-full rounded-md"
+                                                                         id="state"
+                                                                         name="state"
+                                                                         placeholder="Enter State"
+                                                                         value={originAddressState}
+                                                                         onChange={(e) => setOriginAddressState(e.target.value)}
+                                                                  />
+                                                          </div>
+                                                          <div className="">
+                                                              <label htmlFor="country"
+                                                                     className="block mb-2">Country</label>
+                                                                  <input autoComplete="country-name"
+                                                                         type="text" className="w-full rounded-md"
+                                                                         id="country"
+                                                                         name="country"
+                                                                         placeholder="Enter Country"
+                                                                         value={originAddressCountry}
+                                                                         onChange={(e) => setOriginAddressCountry(e.target.value)}
+                                                                  />
+                                                          </div>
                                                       </div>
-                                                      <div className="mb-4">
-                                                          <label htmlFor="destination"
-                                                                 className="block mb-2">Destination</label>
-                                                          <input type="text" className="w-full rounded-md"
-                                                                 id="destination" name="destination"
-                                                                 placeholder="Enter Destination"
-                                                                value={destination}
-                                                                 onChange={(e)=>setDestination(e.target.value)}
-                                                          />
-                                                      </div>
+
+                                                      {minimapFeature &&
+                                                        <div id="minimap-container"
+                                                             className="h-[180px] w-full mb-4 relative">
+                                                            <AddressMinimap
+                                                              feature={minimapFeature}
+                                                              show={!!minimapFeature}
+                                                              satelliteToggle={true}
+
+                                                              accessToken={import.meta.env.VITE_MAP_BOX_API_KEY}
+                                                            />
+                                                        </div>
+                                                      }
+
+
+                                                      {/*<div className="mb-4">*/}
+                                                      {/*    <label htmlFor="destination"*/}
+                                                      {/*           className="block mb-2">Destination</label>*/}
+                                                      {/*    <AddressAutofill accessToken={import.meta.env.VITE_MAP_BOX_API_KEY}>*/}
+
+                                                      {/*    <input*/}
+                                                      {/*          autoComplete="address-line1"*/}
+                                                      {/*          type="text"*/}
+                                                      {/*           className="w-full rounded-md"*/}
+                                                      {/*           id="destination" name="destination"*/}
+                                                      {/*           placeholder="Enter Destination"*/}
+                                                      {/*          value={destinationAddress}*/}
+                                                      {/*           onChange={(e)=>setDestinationAddress(e.target.value)}*/}
+                                                      {/*    />*/}
+                                                      {/*    </AddressAutofill>*/}
+                                                      {/*</div>*/}
                                                       <div className="mb-4">
                                                           <label htmlFor="shipmentDate" className="block mb-2">Shipment
                                                               Date</label>
@@ -656,7 +734,7 @@ export default function Shipment() {
                                                                  name="shipmentDate"
                                                                  placeholder="Enter Origin"
                                                                  value={shipmentDate}
-                                                                 onChange={(e)=>setShipmentDate(e.target.value)}
+                                                                 onChange={(e) => setShipmentDate(e.target.value)}
                                                           />
                                                       </div>
                                                       <div className="mb-4">
@@ -666,8 +744,8 @@ export default function Shipment() {
                                                                  id="estimateDate"
                                                                  name="arrivalDate"
                                                                  placeholder="Enter estimate date"
-                                                                value={estimateDate}
-                                                                 onChange={(e)=>setEstimateDate(e.target.value)}
+                                                                 value={estimateDate}
+                                                                 onChange={(e) => setEstimateDate(e.target.value)}
                                                           />
                                                       </div>
                                                       <div className="mb-4">
@@ -677,18 +755,19 @@ export default function Shipment() {
                                                                  id="arrivalDate"
                                                                  name="arrivalDate"
                                                                  placeholder="Enter Arrival Date"
-                                                                value={arrivalDate}
-                                                                 onChange={(e)=>setArrivalDate(e.target.value)}
+                                                                 value={arrivalDate}
+                                                                 onChange={(e) => setArrivalDate(e.target.value)}
                                                           />
                                                       </div>
                                                       <div className="mb-4">
-                                                          <label htmlFor="capacity" className="block mb-2">Capacity</label>
+                                                          <label htmlFor="capacity"
+                                                                 className="block mb-2">Capacity</label>
                                                           <input type="text" className="w-full rounded-md"
                                                                  id="capacity"
                                                                  name="shipmentDate"
-                                                                 placeholder="Enter Origin"
-                                                                value={capacity}
-                                                                 onChange={(e)=>setCapacity(e.target.value)}
+                                                                 placeholder="Enter Capacity"
+                                                                 value={capacity}
+                                                                 onChange={(e) => setCapacity(e.target.value)}
                                                           />
                                                       </div>
                                                       <div
@@ -734,13 +813,13 @@ export default function Shipment() {
                                             {index === 3 && <section className="w-full">
                                                 <section className="flex flex-col">
                                                     <p className="mb-4 flex items-baseline"><span
-                                                      className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Order date</span><span>{orderDate!=="" && orderDate} {orderDate===""&&'XX/XX/xxxx'}</span>
+                                                      className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Order date</span><span>{orderDate !== "" && orderDate} {orderDate === "" && "XX/XX/xxxx"}</span>
                                                     </p>
                                                     <p className="mb-4 flex items-baseline"><span
-                                                      className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Product</span><span>{product!==""&&product}{product===""&&'Product name'}</span>
+                                                      className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Product</span><span>{product !== "" && product}{product === "" && "Product name"}</span>
                                                     </p>
-                                                        <p className="mb-4 flex items-baseline"><span
-                                                          className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Quantity</span><span>{quantity}</span>
+                                                    <p className="mb-4 flex items-baseline"><span
+                                                      className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Quantity</span><span>{quantity}</span>
                                                         </p>
                                                         <p className="mb-4 flex items-baseline"><span
                                                           className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Price</span><span>{price}</span>
@@ -751,11 +830,11 @@ export default function Shipment() {
                                                         <p className="mb-4 flex items-center">
                                                         <span
                                                           className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Origin</span>
-                                                            <span>{origin!==""&&origin}{origin===""&&'Origin address'}</span>
+                                                            <span>{originAddress!==""&&originAddress}{originAddress===""&&'Origin address'}</span>
                                                         </p>
                                                         <p className="mb-4 flex items-center"><span
                                                           className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Destination</span>
-                                                            <span>{destination!==""&&destination}{destination===""&&'Destination address'}</span>
+                                                            <span>{destinationAddress!==""&&destinationAddress}{destinationAddress===""&&'Destination address'}</span>
                                                         </p>
                                                         <p className="mb-4 flex items-baseline"><span
                                                           className="bg-orange-500 mb-2 mr-4 inline-block text-white p-2 rounded-sm">Vehicle</span>

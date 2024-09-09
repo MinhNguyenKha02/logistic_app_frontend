@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mapbox/search-js-react": "^1.0.0-beta.22",
     "@vis.gl/react-google-maps": "^1.1.0",
     "axios": "^1.7.4",
     "flowbite": "^2.5.1",

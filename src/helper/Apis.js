@@ -44,6 +44,8 @@ export const endpoints = {
   "login": "/login",
   "logout": "/logout",
   "current-user": "/current-user",
-  "mapbox-search":`https://api.mapbox.com/search/searchbox/v1/suggest?q=V%C3%B5+v%C4%83n+t%E1%BA%A7n&language=en&proximity=-73.990593,40.740121&session_token=0e67ebf9-8c31-4981-891c-b1c38b102bf9&access_token=${process.env.MAP_BOX_API_KEY}`
+  "mapbox-search":(keyword)=>`https://api.mapbox.com/search/searchbox/v1/
+  suggest?q=${keyword}&language=en&session_token=0e67ebf9-8c31-4981-891c-b1c38b102bf9&
+  access_token=${import.meta.env.VITE_MAP_BOX_API_KEY}`
 
 }

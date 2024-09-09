@@ -11,6 +11,7 @@ import { DetailPageContext } from "./helper/Context.js";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import ShipmentDetail from "./pages/ShipmentDetail.jsx";
+import Tracking from "./pages/Tracking.jsx";
 function App() {
 
   const [inventoryContext, setInventoryContext] = useState({
@@ -68,6 +69,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" index element={<Home/>} />
+          <Route path="/tracking" index element={<Tracking/>} />
           <Route path="/register"  element={<Register/>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/shipment" element={<Shipment/>} />

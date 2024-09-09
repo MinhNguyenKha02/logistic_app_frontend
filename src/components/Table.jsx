@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {endpoints, authApi} from "../helper/Apis.js";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from 'react-toastify';
+import api from "js-cookie";
 export default function Table() {
     const [Data,setData]=useState([]);
     const [loading, setLoading] = useState(true)
@@ -91,7 +92,6 @@ export default function Table() {
       // if(done===true)
       //   setDeleteIds([])
   }
-
 
 
   const getInventory = async (url) => {
