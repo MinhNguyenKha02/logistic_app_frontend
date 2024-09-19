@@ -5,43 +5,42 @@ import { authApi, endpoints } from "../helper/Apis.js";
 import Cookies from "js-cookie";
 import { DetailPageContext } from "../helper/Context.js";
 import { ToastContainer, toast } from "react-toastify";
+import TableUser from "../components/TableUser.jsx";
 import { echo } from "../helper/echo.js";
 
-export default function InventoryPage() {
-  const [text, setText] = useState("");
-  const { inventoryContext, setInventoryContext } =
-    useContext(DetailPageContext);
+export default function UserPage() {
+  const { userContext, setUserContext } = useContext(DetailPageContext);
+  // "name", "email", "password", "role";
+  const [roles, setRoles] = useState([]);
 
-  const [warehouses, setWarehouses] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [units, setUnits] = useState([]);
-
-  const [warehouse, setWarehouse] = React.useState("");
-  const [product, setProduct] = React.useState("");
-  const [unit, setUnit] = React.useState("");
-  const [quantity, setQuantity] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [role, setRole] = React.useState("");
 
   const [message, setMessage] = React.useState("");
 
   const handleSubmit = async () => {
     const data = {
-      warehouse_id: warehouse,
-      product_id: product,
-      unit: unit,
-      quantity: quantity,
+      name: name,
+      email: email,
+      password: password,
+      password_confirmation: password,
+      role: role,
     };
+    console.log(data);
     const token = Cookies.get("token");
     console.log(token);
     const response = await authApi(token)
-      .post(endpoints["inventory"], data)
+      .post(endpoints["users"], data)
       .catch((err) => {
         if (err.response.status === 422) {
           const data = err.response.data.errors;
           console.log(data);
-          data.quantity?.forEach((d) => toast.error(d));
-          data.product_id?.forEach((d) => toast.error(d));
-          data.warehouse_id?.forEach((d) => toast.error(d));
-          data.unit?.forEach((d) => toast.error(d));
+          data.role?.forEach((d) => toast.error(d));
+          data.email?.forEach((d) => toast.error(d));
+          data.name?.forEach((d) => toast.error(d));
+          data.password?.forEach((d) => toast.error(d));
         }
       });
     console.log(response);
@@ -51,42 +50,26 @@ export default function InventoryPage() {
 
       toast.success(response.data.message, {
         onClick: () => {
-          setInventoryContext((prev) => ({ ...prev, addItem: true }));
+          setUserContext((prev) => ({ ...prev, addItem: true }));
         },
         onClose: () => {
-          setInventoryContext((prev) => ({ ...prev, addItem: true }));
+          setUserContext((prev) => ({ ...prev, addItem: true }));
         },
       });
     }
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchRole = async () => {
       const token = Cookies.get("token");
-      console.log(token);
-      const response = await authApi(token).get(endpoints["products"]);
-      setProducts(response.data.products);
-      console.log(response.data);
+      const response = await authApi(token).get(endpoints["roles"]);
+      console.log(response.data.roles);
+      setRoles(response.data.roles);
     };
-    fetchProducts();
-
-    const fetchWarehouses = async () => {
-      const token = Cookies.get("token");
-      const response = await authApi(token).get(endpoints["warehouses"]);
-      console.log(response.data);
-      setWarehouses(response.data.warehouses);
-    };
-    fetchWarehouses();
-
-    const fetchUnits = async () => {
-      const token = Cookies.get("token");
-      const response = await authApi(token).get(endpoints["inventory-unit"]);
-      console.log(response.data.units);
-      setUnits(response.data.units);
-    };
-    fetchUnits();
+    fetchRole();
   }, []);
   const [user, setUser] = React.useState({});
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const token = Cookies.get("token");
@@ -95,13 +78,7 @@ export default function InventoryPage() {
     };
     fetchCurrentUser();
   }, []);
-  useEffect(() => {
-    const token = Cookies.get("token");
-    user &&
-      echo(token)
-        .private(`notification.${user.id}`)
-        .notification((notification) => toast.info(notification["message"]));
-  }, []);
+
   return (
     <>
       <ToastContainer position="top-right" />
@@ -109,20 +86,20 @@ export default function InventoryPage() {
       <Sidebar />
       <main className="flex h-screen flex-row bg-gray-100 p-4 sm:ml-64">
         <section className="basis-[100%] overflow-x-auto p-4 lg:basis-[60%]">
-          <Table />
+          <TableUser />
         </section>
         <section className="hidden p-4 lg:block lg:basis-[40%]">
           <section className="relative rounded-lg bg-white">
-            {inventoryContext.add && (
+            {userContext.add && (
               <section className="absolute left-0 right-0 top-0 rounded-md bg-white p-4 px-8 text-black">
                 <div className="mb-4 flex justify-between">
                   <div className="text-2xl">Add form</div>
                   <div
                     className="cursor-pointer"
                     onClick={() => {
-                      setInventoryContext((prevState) => ({
+                      setUserContext((prevState) => ({
                         ...prevState,
-                        add: !inventoryContext.add,
+                        add: !userContext.add,
                       }));
                     }}
                   >
@@ -147,85 +124,63 @@ export default function InventoryPage() {
                 </div>
                 <div>
                   <div className="mb-4">
-                    <label htmlFor="product" className="mb-2 block">
-                      Product
+                    <label htmlFor="email" className="mb-2 block">
+                      Email
                     </label>
-                    <select
-                      id="product"
+                    <input
+                      id="email"
                       className="w-full rounded-md"
-                      value={product}
-                      onChange={(e) => setProduct(e.target.value)}
-                    >
-                      {products.map((p, index) => {
-                        if (index === 0) {
-                          return (
-                            <option selected={true}>Select your option</option>
-                          );
-                        }
-                        return (
-                          <option value={p.id}>
-                            {p.name.toString().at(0).toUpperCase() +
-                              p.name.slice(1)}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                    />
                   </div>
                   <div className="mb-4">
-                    <label htmlFor="warehouse" className="mb-2 block">
-                      Warehouse
+                    <label htmlFor="name" className="mb-2 block">
+                      Name
+                    </label>
+                    <input
+                      id="name"
+                      className="w-full rounded-md"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      type="text"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="role" className="mb-2 block">
+                      Role
                     </label>
                     <select
-                      id="warehouse"
+                      id="name"
                       className="w-full rounded-md"
-                      value={warehouse}
-                      onChange={(e) => setWarehouse(e.target.value)}
+                      defaultValue={role}
+                      onChange={(e) => setRole(e.target.value)}
                     >
-                      {warehouses.map((wh, index) => {
+                      {roles.map((wh, index) => {
                         if (index === 0)
                           return (
                             <option selected={true}>Select your option</option>
                           );
                         return (
-                          <option value={wh.id}>
-                            {wh.name.at(0).toUpperCase() + wh.name.slice(1)}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="quantity" className="mb-2 block">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full rounded-md"
-                      id="quantity"
-                      name="name"
-                      placeholder="Enter quantity"
-                      onChange={(e) => setQuantity(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="unit" className="mb-2 block">
-                      Unit
-                    </label>
-                    <select
-                      id="unit"
-                      className="w-full rounded-md"
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                    >
-                      <option selected={true}>Select your option</option>;
-                      {units.map((wh, index) => {
-                        return (
-                          <option key={index} value={wh}>
+                          <option value={wh}>
                             {wh.at(0).toUpperCase() + wh.slice(1)}
                           </option>
                         );
                       })}
                     </select>
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="password" className="mb-2 block">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      className="w-full rounded-md"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      type="password"
+                    />
                   </div>
                   <div className="mb-8">
                     {message && (
@@ -243,9 +198,9 @@ export default function InventoryPage() {
                     </button>
                     <button
                       onClick={() =>
-                        setInventoryContext((prevState) => ({
+                        setUserContext((prevState) => ({
                           ...prevState,
-                          add: !inventoryContext.add,
+                          add: !userContext.add,
                         }))
                       }
                       className="rounded-md border border-black px-4 py-2"

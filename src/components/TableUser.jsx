@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DetailPageContext } from "../helper/Context.js";
 import { useNavigate } from "react-router-dom";
 import { endpoints, authApi } from "../helper/Apis.js";
@@ -7,42 +7,43 @@ import { ToastContainer, toast } from "react-toastify";
 import api from "js-cookie";
 import { dateFormat } from "../helper/dateFormat.js";
 
-export default function Table() {
+export default function TableUser() {
   const [Data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { inventoryContext, setInventoryContext } =
-    useContext(DetailPageContext);
-  console.log("inventoryContext inventory", inventoryContext);
+  const { userContext, setUserContext } = useContext(DetailPageContext);
   const navigate = useNavigate();
-  const [del, setDel] = React.useState(!inventoryContext.del ? false : true);
+  const [del, setDel] = React.useState(!userContext.del ? false : true);
   const [detailOpen, setDetailOpen] = React.useState(
-    !inventoryContext.detailOpen ? false : true,
+    !userContext.detailOpen ? false : true,
   );
+  // 'id',
+  //   'name',
+  //   'email',
+  //   'password',
+  //   'role'
   const [orderDirectionIdIndex, setOrderDirectionIdIndex] = React.useState(2);
-  const [orderDirectionQuantityIndex, setOrderDirectionQuantityIndex] =
+  const [orderDirectionNameIndex, setOrderDirectionNameIndex] =
     React.useState(2);
-  const [orderDirectionUnitIndex, setOrderDirectionUnitIndex] =
+  const [orderDirectionEmailIndex, setOrderDirectionEmailIndex] =
     React.useState(2);
-  const [orderDirectionProductIndex, setOrderDirectionProductIndex] =
-    React.useState(2);
-  const [orderDirectionWarehouseIndex, setOrderDirectionWarehouseIndex] =
+  const [orderDirectionRoleIndex, setOrderDirectionRoleIndex] =
     React.useState(2);
   const [orderDirectionCreatedIndex, setOrderDirectionCreatedIndex] =
     React.useState(2);
   const [orderDirectionUpdatedIndex, setOrderDirectionUpdatedIndex] =
     React.useState(2);
   const [detailOpens, setDetailOpens] = useState([
-    !inventoryContext.detailOpens
-      ? Data.data.forEach((d) => (!inventoryContext.detailOpen ? false : true))
+    !userContext.detailOpens
+      ? Data.data.forEach((d) => (!userContext.detailOpen ? false : true))
       : false,
   ]);
 
   const [deleteIds, setDeleteIds] = React.useState([]);
 
-  const [all, setAll] = React.useState(!inventoryContext.all ? false : true);
+  const [all, setAll] = React.useState(!userContext.all ? false : true);
   const [checkBoxOpen, setCheckBoxOpen] = React.useState(
-    !inventoryContext.checkBoxOpen ? false : true,
+    !userContext.checkBoxOpen ? false : true,
   );
 
   const [message, setMessage] = React.useState({
@@ -57,7 +58,7 @@ export default function Table() {
   const changeMode = function () {
     setDel(!del);
     setCheckBoxOpen(!checkBoxOpen);
-    setInventoryContext((prevState) => ({
+    setUserContext((prevState) => ({
       ...prevState,
       del: del,
       checkBoxOpen: checkBoxOpen,
@@ -83,48 +84,51 @@ export default function Table() {
     setLoading(true);
     const token = Cookies.get("token");
     console.log(token);
-    const response = await authApi(token).get(endpoints["inventory"]);
+    const response = await authApi(token).get(endpoints["users"]);
     if (response) {
-      setData(response.data.inventories);
+      setData(response.data.users);
       setLoading(false);
       console.log(response.data);
     }
   };
   const handleDeleteAll = async () => {
+    // now I am not finish
     console.log(deleteIds);
     const token = Cookies.get("token");
     let done = false;
     for (const id of deleteIds) {
       const index = deleteIds.indexOf(id);
-      console.log(endpoints["inventory-detail"](id));
+      console.log(endpoints["user-detail"](id));
       console.log(index);
       const response = await authApi(token).delete(
-        endpoints["inventory-detail"](id),
+        endpoints["user-detail"](id),
       );
       console.log("response", response);
       if (response.status === 204 && index === deleteIds.length - 1) {
         fetchData();
+        toast.success(response.data.message || "Deleted");
         done = true;
       }
     }
     if (done === true) setDeleteIds([]);
   };
 
-  const getInventory = async (url) => {
+  const getUser = async (url) => {
     const token = Cookies.get("token");
     console.log(token);
     const response = await authApi(token).get(url);
     console.log(response.data);
-    setData(response.data.inventories);
+    setData(response.data.users);
   };
 
   const handleSearch = async (e) => {
     const keyword = e.target.value;
     const token = Cookies.get("token");
     console.log(token);
-    const response = await authApi(token).get(endpoints["search"](keyword));
-    console.log(response.data);
-    setData(response.data.inventories);
+    const response = await authApi(token).get(
+      endpoints["search-user"](keyword),
+    );
+    setData(response.data.users);
   };
 
   const orderBy = async (type) => {
@@ -135,19 +139,15 @@ export default function Table() {
     switch (type) {
       case "id":
         direction = directions[orderDirectionIdIndex];
-
         break;
-      case "quantity":
-        direction = directions[orderDirectionQuantityIndex];
+      case "name":
+        direction = directions[orderDirectionNameIndex];
         break;
-      case "unit":
-        direction = directions[orderDirectionUnitIndex];
+      case "email":
+        direction = directions[orderDirectionEmailIndex];
         break;
-      case "warehouse_id":
-        direction = directions[orderDirectionWarehouseIndex];
-        break;
-      case "product_id":
-        direction = directions[orderDirectionProductIndex];
+      case "role":
+        direction = directions[orderDirectionRoleIndex];
         break;
       case "created_at":
         direction = directions[orderDirectionCreatedIndex];
@@ -158,23 +158,23 @@ export default function Table() {
     }
     const token = Cookies.get("token");
     const response = await authApi(token).get(
-      endpoints["order"](type, direction),
+      endpoints["order-user"](type, direction),
     );
-    setData(response.data.inventories);
+    setData(response.data.users);
   };
 
   const deleteItem = async (id) => {
     const token = Cookies.get("token");
-    const response = await authApi(token).delete(
-      endpoints["inventory-detail"](id),
-    );
+    console.log("token", token);
+    const response = await authApi(token).delete(endpoints["user-detail"](id));
+    console.log("response", response);
     if (response.status === 204) {
       toast.success(response.data.message || "Deleted", {
         onClick: () => {
-          setInventoryContext((prev) => ({ ...prev, updateItem: true }));
+          setUserContext((prev) => ({ ...prev, updateItem: true }));
         },
         onClose: () => {
-          setInventoryContext((prev) => ({ ...prev, updateItem: true }));
+          setUserContext((prev) => ({ ...prev, updateItem: true }));
         },
       });
     }
@@ -184,63 +184,16 @@ export default function Table() {
   }, []);
 
   const handleWhenAddOrUpdate = () => {
-    if (inventoryContext.updateItem === true) {
+    if (userContext.updateItem === true) {
       fetchData();
-      inventoryContext.updateItem = false;
+      userContext.updateItem = false;
     }
-    if (inventoryContext.addItem === true) {
+    if (userContext.addItem === true) {
       fetchData();
-      inventoryContext.addItem = false;
+      userContext.addItem = false;
     }
   };
   handleWhenAddOrUpdate();
-
-  const [warehouseNames, setWarehouseNames] = useState({});
-  const [productNames, setProductNames] = useState({});
-
-  const fetchProductName = async (id) => {
-    const token = Cookies.get("token");
-    const response = await authApi(token).get(endpoints["product-detail"](id));
-    return response.data.product.name; // Adjust this based on your API response
-  };
-
-  const fetchWarehouseName = async (id) => {
-    const token = Cookies.get("token");
-    const response = await authApi(token).get(
-      endpoints["warehouse-detail"](id),
-    );
-    return response.data.warehouse.name;
-  };
-
-  const fetchAllWarehouseNames = useCallback(async () => {
-    const names = {};
-    for (const d of Data.data) {
-      if (!names[d.warehouse_id]) {
-        names[d.warehouse_id] = await fetchWarehouseName(d.warehouse_id);
-      }
-    }
-    setWarehouseNames(names);
-  }, [Data]);
-
-  const fetchAllProductNames = useCallback(async () => {
-    const names = {};
-    for (const d of Data.data) {
-      if (!names[d.product_id]) {
-        names[d.product_id] = await fetchProductName(d.product_id);
-      }
-    }
-    setProductNames(names);
-  }, [Data]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (Data && Data?.data) {
-        await fetchAllWarehouseNames();
-        await fetchAllProductNames();
-      }
-    };
-    fetchData();
-  }, [Data, fetchAllWarehouseNames, fetchAllProductNames]);
 
   return (
     <>
@@ -265,7 +218,7 @@ export default function Table() {
                 d="M4.248 19C3.22 15.77 5.275 8.232 12.466 8.232V6.079a1.025 1.025 0 0 1 1.644-.862l5.479 4.307a1.108 1.108 0 0 1 0 1.723l-5.48 4.307a1.026 1.026 0 0 1-1.643-.861v-2.154C5.275 13.616 4.248 19 4.248 19Z"
               />
             </svg>
-            Inventory List{""}
+            User List{""}
             <button onClick={() => fetchData()}>
               <svg
                 className="h-6 w-6 text-black"
@@ -338,12 +291,12 @@ export default function Table() {
               <button className="rounded-md bg-orange-500 px-4 py-2 text-left text-white">
                 Export to CSV
               </button>
-              {!del && inventoryContext.add === false && (
+              {!del && userContext.add === false && (
                 <button
                   onClick={() => {
-                    setInventoryContext((prevState) => ({
+                    setUserContext((prevState) => ({
                       ...prevState,
-                      add: !inventoryContext.add,
+                      add: !userContext.add,
                     }));
                   }}
                   className="rounded-md bg-orange-500 px-4 py-2 text-left text-white lg:text-center"
@@ -359,12 +312,12 @@ export default function Table() {
                   Delete
                 </button>
               )}
-              {inventoryContext.add === true && (
+              {userContext.add === true && (
                 <button
                   onClick={() => {
-                    setInventoryContext((prevState) => ({
+                    setUserContext((prevState) => ({
                       ...prevState,
-                      add: !inventoryContext.add,
+                      add: !userContext.add,
                     }));
                   }}
                   className="rounded-md border border-black px-4 py-2 text-left text-black lg:text-center"
@@ -411,7 +364,7 @@ export default function Table() {
                             className="size-5"
                             onChange={() => {
                               setAll(!all);
-                              setInventoryContext((prevState) => ({
+                              setUserContext((prevState) => ({
                                 ...prevState,
                                 all: all,
                               }));
@@ -429,7 +382,7 @@ export default function Table() {
                             className="size-5"
                             onChange={() => {
                               setAll(!all);
-                              setInventoryContext((prevState) => ({
+                              setUserContext((prevState) => ({
                                 ...prevState,
                                 all: all,
                               }));
@@ -453,7 +406,7 @@ export default function Table() {
                         }}
                         className="p-2"
                       >
-                        <span>Inventory Id&nbsp;</span>
+                        <span>User Id&nbsp;</span>
                         {orderDirectionIdIndex === 0 && (
                           <svg
                             className="inline-block size-6 text-white dark:text-white"
@@ -514,17 +467,17 @@ export default function Table() {
                       </th>
                       <th
                         onClick={() => {
-                          orderBy("quantity");
-                          setOrderDirectionQuantityIndex(
-                            orderDirectionQuantityIndex === 2
+                          orderBy("name");
+                          setOrderDirectionNameIndex(
+                            orderDirectionNameIndex === 2
                               ? 0
-                              : orderDirectionQuantityIndex + 1,
+                              : orderDirectionNameIndex + 1,
                           );
                         }}
                         className="p-2"
                       >
-                        <span>Quantity&nbsp;</span>
-                        {orderDirectionQuantityIndex === 0 && (
+                        <span>Name&nbsp;</span>
+                        {orderDirectionNameIndex === 0 && (
                           <svg
                             className="inline-block size-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -543,7 +496,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionQuantityIndex === 1 && (
+                        {orderDirectionNameIndex === 1 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -562,7 +515,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionQuantityIndex === 2 && (
+                        {orderDirectionNameIndex === 2 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -584,17 +537,17 @@ export default function Table() {
                       </th>
                       <th
                         onClick={() => {
-                          orderBy("unit");
-                          setOrderDirectionUnitIndex(
-                            orderDirectionUnitIndex === 2
+                          orderBy("email");
+                          setOrderDirectionEmailIndex(
+                            orderDirectionEmailIndex === 2
                               ? 0
-                              : orderDirectionUnitIndex + 1,
+                              : orderDirectionEmailIndex + 1,
                           );
                         }}
                         className="p-2"
                       >
-                        Unit&nbsp;
-                        {orderDirectionUnitIndex === 0 && (
+                        Email&nbsp;
+                        {orderDirectionEmailIndex === 0 && (
                           <svg
                             className="inline-block size-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -613,7 +566,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionUnitIndex === 1 && (
+                        {orderDirectionEmailIndex === 1 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -632,7 +585,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionUnitIndex === 2 && (
+                        {orderDirectionEmailIndex === 2 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -654,17 +607,17 @@ export default function Table() {
                       </th>
                       <th
                         onClick={() => {
-                          orderBy("warehouse_id");
-                          setOrderDirectionWarehouseIndex(
-                            orderDirectionWarehouseIndex === 2
+                          orderBy("role");
+                          setOrderDirectionRoleIndex(
+                            orderDirectionRoleIndex === 2
                               ? 0
-                              : orderDirectionWarehouseIndex + 1,
+                              : orderDirectionRoleIndex + 1,
                           );
                         }}
                         className="p-2"
                       >
-                        Warehouse&nbsp;
-                        {orderDirectionWarehouseIndex === 0 && (
+                        Role&nbsp;
+                        {orderDirectionRoleIndex === 0 && (
                           <svg
                             className="inline-block size-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -683,7 +636,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionWarehouseIndex === 1 && (
+                        {orderDirectionRoleIndex === 1 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -702,77 +655,7 @@ export default function Table() {
                             />
                           </svg>
                         )}
-                        {orderDirectionWarehouseIndex === 2 && (
-                          <svg
-                            className="inline-block h-6 w-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m8 15 4 4 4-4m0-6-4-4-4 4"
-                            />
-                          </svg>
-                        )}
-                      </th>
-                      <th
-                        onClick={() => {
-                          orderBy("product_id");
-                          setOrderDirectionProductIndex(
-                            orderDirectionProductIndex === 2
-                              ? 0
-                              : orderDirectionProductIndex + 1,
-                          );
-                        }}
-                        className="p-2"
-                      >
-                        Product&nbsp;
-                        {orderDirectionProductIndex === 0 && (
-                          <svg
-                            className="inline-block size-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m5 15 7-7 7 7"
-                            />
-                          </svg>
-                        )}
-                        {orderDirectionProductIndex === 1 && (
-                          <svg
-                            className="inline-block h-6 w-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m19 9-7 7-7-7"
-                            />
-                          </svg>
-                        )}
-                        {orderDirectionProductIndex === 2 && (
+                        {orderDirectionRoleIndex === 2 && (
                           <svg
                             className="inline-block h-6 w-6 text-white dark:text-white"
                             aria-hidden="true"
@@ -982,14 +865,9 @@ export default function Table() {
                             )}
                             {!checkBoxOpen && <td className="p-2"></td>}
                             <td className="p-2">{d.id}</td>
-                            <td className="p-2">{d.quantity}</td>
-                            <td className="p-2">{d.unit}</td>
-                            <td className="p-2">
-                              {warehouseNames[d.warehouse_id]}
-                            </td>
-                            <td className="p-2">
-                              {productNames[d.product_id]}
-                            </td>
+                            <td className="p-2">{d.name}</td>
+                            <td className="p-2">{d.email}</td>
+                            <td className="p-2">{d.role}</td>
                             <td className="p-2">{dateFormat(d.created_at)}</td>
                             <td className="p-2">{dateFormat(d.updated_at)}</td>
                             <td>
@@ -999,7 +877,7 @@ export default function Table() {
                                   newDetailOpens[index] =
                                     !newDetailOpens[index];
                                   setDetailOpens(newDetailOpens);
-                                  setInventoryContext((prevState) => ({
+                                  setUserContext((prevState) => ({
                                     ...prevState,
                                     detailOpens: newDetailOpens,
                                   }));
@@ -1026,7 +904,7 @@ export default function Table() {
                                   <section className="top-100 -left-100 absolute right-0 z-20 min-w-[100px] cursor-pointer rounded-md border border-black bg-white py-2 shadow-md">
                                     <p
                                       onClick={() => {
-                                        setInventoryContext((prevState) => ({
+                                        setUserContext((prevState) => ({
                                           ...prevState,
                                           id: d.id,
                                           del: del,
@@ -1034,7 +912,7 @@ export default function Table() {
                                           all: all,
                                           checkBoxOpen: checkBoxOpen,
                                         }));
-                                        navigate(`/inventory/${d.id}`);
+                                        navigate(`/users/${d.id}`);
                                       }}
                                       className="px-4 py-2 hover:bg-gray-100 hover:text-black"
                                     >
@@ -1077,7 +955,7 @@ export default function Table() {
                           <div
                             key={index}
                             data-url={d.url}
-                            onClick={() => getInventory(d.url)}
+                            onClick={() => getUser(d.url)}
                             className={` ${d.label.includes("Next") || d.label.includes("Previous") ? "min-w-[100px]" : ""} cursor-pointer rounded-md bg-gray-100 px-3 py-2 text-center hover:bg-gray-200`}
                           >
                             {d.label}
@@ -1088,7 +966,7 @@ export default function Table() {
                           <div
                             key={index}
                             data-url={d.url}
-                            onClick={() => getInventory(d.url)}
+                            onClick={() => getUser(d.url)}
                             className="cursor-pointer rounded-md bg-gray-200 px-3 py-2 hover:bg-gray-200"
                           >
                             {d.label}

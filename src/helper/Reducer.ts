@@ -1,25 +1,40 @@
 export const initialState = {
-  user:null
-}
+  user: null,
+  message: null,
+};
 
 interface State {
-  user:object
+  user: object;
 }
 
 interface Action {
-  type:string
-  payload:object
+  type: string;
+  payload?: {
+    user?: object;
+    message?: string;
+  };
 }
 
-export function AuthenticateReducer(state:State=initialState, action: Action) {
+export function AuthenticateReducer(
+  state: State = initialState,
+  action: Action,
+) {
   switch (action.type) {
     case "login":
-      return action.payload
+      return {
+        ...state,
+        user: action.payload?.user,
+        message: action.payload?.message,
+      };
     case "logout":
-      return null
+      return null;
     case "register":
-      return action.payload
+      return {
+        ...state,
+        user: action.payload?.user,
+        message: action.payload?.message,
+      };
     default:
-      return state
+      return state;
   }
 }
