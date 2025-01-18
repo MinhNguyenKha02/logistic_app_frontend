@@ -51,7 +51,19 @@ export default function Sidebar() {
         .private(`notification.${user.id}`)
         .notification((notification) => toast.info(notification["message"]));
   }, []);
-
+  const [data, setData] = useState([]);
+  const fetchNotificationByUserId = async () => {
+    const token = Cookies.get("token");
+    const response = await authApi(token).get(
+      endpoints["get-notifications-by-current-user"],
+    );
+    if (response.status === 200) {
+      setData(response.data.notifications);
+    }
+  };
+  useEffect(() => {
+    fetchNotificationByUserId();
+  }, []);
   return (
     <div className="bg-white">
       <ToastContainer position="top-right" />
@@ -110,21 +122,12 @@ export default function Sidebar() {
           </section>
         )}
         <div className="h-full overflow-y-auto px-3 py-4 dark:bg-gray-800">
-          <section className="mb-5 flex justify-between gap-4">
-            <a
-              href="https://flowbite.com/"
-              className="flex items-center ps-2.5"
+          <section className="mb-5 flex gap-4">
+            <button
+              onClick={() => setOpenNotification(!openNotification)}
+              type="button"
+              className="relative inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-black"
             >
-              <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="me-3 h-6 sm:h-7"
-                alt="Flowbite Logo"
-              />
-              <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                Flowbite
-              </span>
-            </a>
-            <button onClick={() => setOpenNotification(!openNotification)}>
               <svg
                 className="size-7 text-gray-800 dark:text-white"
                 aria-hidden="true"
@@ -136,7 +139,19 @@ export default function Sidebar() {
               >
                 <path d="M17.133 12.632v-1.8a5.406 5.406 0 0 0-4.154-5.262.955.955 0 0 0 .021-.106V3.1a1 1 0 0 0-2 0v2.364a.955.955 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C6.867 15.018 5 15.614 5 16.807 5 17.4 5 18 5.538 18h12.924C19 18 19 17.4 19 16.807c0-1.193-1.867-1.789-1.867-4.175ZM8.823 19a3.453 3.453 0 0 0 6.354 0H8.823Z" />
               </svg>
+              <span className="sr-only">Notifications</span>
+              <div className="absolute -end-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white dark:border-gray-900">
+                {data.length}
+              </div>
             </button>
+            <a
+              href="https://flowbite.com/"
+              className="flex items-center ps-2.5"
+            >
+              <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+                Flowbite
+              </span>
+            </a>
           </section>
           <ul
             className={`relative ${openNotification ? "z-[-1]" : "z-[0]"} space-y-2 bg-white font-medium`}

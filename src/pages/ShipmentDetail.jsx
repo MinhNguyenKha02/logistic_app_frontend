@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { DetailPageContext } from "../helper/Context.js";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import Table from "../components/Table.jsx";
 import TableShipment from "../components/TableShipment.jsx";
@@ -437,6 +437,35 @@ export default function ShipmentDetail() {
       });
     }
   };
+  const [vehicleNames, setVehicleNames] = useState(null);
+  const fetchVehicleName = useCallback(async (id) => {
+    const token = Cookies.get("token");
+    const response = await authApi(token).get(endpoints["vehicle-detail"](id));
+    if (response.status === 200) {
+      const response_ = await authApi(token).get(
+        endpoints["user-detail"](response.data.vehicle.carrier_id),
+      );
+      if (response_.status === 200) {
+        return response_.data.user.name;
+      }
+    }
+  }, []);
+  const fetchAllVehicleNames = useCallback(async () => {
+    const names = {};
+    if (!vehicleNames) {
+      for (const d of vehicles) {
+        if (!names[d.id]) {
+          names[d.id] = await fetchVehicleName(d.id);
+        }
+      }
+      setVehicleNames(names);
+    }
+  }, [vehicles]);
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      fetchAllVehicleNames();
+    }
+  }, [vehicles]);
   return (
     <>
       <ToastContainer position="top-right" />
@@ -1134,16 +1163,17 @@ export default function ShipmentDetail() {
                                 <option selected={true}>
                                   Select your option
                                 </option>
-                                {vehicles.map((s, index) => {
-                                  return (
-                                    <option key={index} value={s.id}>
-                                      {s.type.toString().at(0).toUpperCase() +
-                                        s.type.slice(1) +
-                                        " - " +
-                                        s.id}
-                                    </option>
-                                  );
-                                })}
+                                {vehicleNames !== null &&
+                                  vehicles.map((s, index) => {
+                                    return (
+                                      <option key={index} value={s.id}>
+                                        {s.type.toString().at(0).toUpperCase() +
+                                          s.type.slice(1) +
+                                          " - " +
+                                          vehicleNames[s.id]}
+                                      </option>
+                                    );
+                                  })}
                               </select>
                               {/*<div className="basis-1/2">*/}
                               {/*  <label className="mb-2 block" htmlFor="status">*/}
@@ -1519,26 +1549,31 @@ export default function ShipmentDetail() {
                         onClick={(e) => setVehicleId(e.target.value)}
                         onInput={(e) => setVehicleId(e.target.value)}
                       >
-                        {vehicles.map((s, index) => {
-                          if (s.id === vehicleId)
-                            return (
-                              <option key={index} value={s.id} selected={true}>
-                                {s.type.toString().at(0).toUpperCase() +
-                                  s.type.slice(1) +
-                                  " - " +
-                                  s.id}
-                              </option>
-                            );
-                          else
-                            return (
-                              <option key={index} value={s.id}>
-                                {s.type.toString().at(0).toUpperCase() +
-                                  s.type.slice(1) +
-                                  " - " +
-                                  s.id}
-                              </option>
-                            );
-                        })}
+                        {vehicleNames !== null &&
+                          vehicles.map((s, index) => {
+                            if (s.id === vehicleId)
+                              return (
+                                <option
+                                  key={index}
+                                  value={s.id}
+                                  selected={true}
+                                >
+                                  {s.type.toString().at(0).toUpperCase() +
+                                    s.type.slice(1) +
+                                    " - " +
+                                    vehicleNames[s.id]}
+                                </option>
+                              );
+                            else
+                              return (
+                                <option key={index} value={s.id}>
+                                  {s.type.toString().at(0).toUpperCase() +
+                                    s.type.slice(1) +
+                                    " - " +
+                                    vehicleNames[s.id]}
+                                </option>
+                              );
+                          })}
                       </select>
                     </div>
                     <div className="basis-1/2">

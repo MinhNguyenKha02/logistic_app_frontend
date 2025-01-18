@@ -5,7 +5,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
 import Cookies from "js-cookie";
 import { authApi, endpoints, standardApi } from "../helper/Apis.js";
@@ -14,7 +14,7 @@ import {
   dateFormat,
   formatToMySQLDate,
   timeAgo,
-  formatPriceVND,
+  formatPriceVND
 } from "../helper/dateFormat.js";
 import tt from "@tomtom-international/web-sdk-maps";
 import { services } from "@tomtom-international/web-sdk-services";
@@ -28,10 +28,10 @@ export default function Home() {
     transactionContext,
     setTransactionContext,
     orderContext,
-    setOrderContext,
+    setOrderContext
   } = useContext(DetailPageContext);
   const [minimapFeature, setMinimapFeature] = useState();
-  const SetIndex = function (index) {
+  const SetIndex = function(index) {
     if (index === 3) {
       setIndex(3);
     } else if (index === 2) {
@@ -67,7 +67,7 @@ export default function Home() {
   const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(100000);
   const [transactionDate, setTransactionDate] = useState(
-    formatToMySQLDate(new Date()),
+    formatToMySQLDate(new Date())
   );
   const [originAddress, setOriginAddress] = useState("");
   const [originAddressApartmentNumber, setOriginAddressApartmentNumber] =
@@ -78,7 +78,7 @@ export default function Home() {
   const [destinationAddress, setDestinationAddress] = useState("");
 
   const [shipmentDate, setShipmentDate] = useState(
-    formatToMySQLDate(new Date()),
+    formatToMySQLDate(new Date())
   );
   const [estimateDate, setEstimateDate] = useState("");
   const [arrivalDate, setArrivalDate] = useState("");
@@ -117,7 +117,7 @@ export default function Home() {
     const fetchTransactionsStatus = async () => {
       const token = Cookies.get("token");
       const response = await authApi(token).get(
-        endpoints["transactions-status"],
+        endpoints["transactions-status"]
       );
       setTransactionsStatus(response.data.statuss);
     };
@@ -176,7 +176,7 @@ export default function Home() {
       type: transactionType,
       status: transactionStatus,
       quantity: quantity,
-      unit: unit,
+      unit: unit
     };
 
     console.log("data transaction", dataTransaction);
@@ -204,7 +204,7 @@ export default function Home() {
         },
         onClose: () => {
           setTransactionContext((prev) => ({ ...prev, addItem: true }));
-        },
+        }
       });
       setIndex(index + 1);
     }
@@ -218,7 +218,7 @@ export default function Home() {
       product_id: product,
       transaction_id: latestTransaction.id,
       date: orderDate,
-      status: orderStatus,
+      status: orderStatus
     };
 
     const token = Cookies.get("token");
@@ -243,7 +243,7 @@ export default function Home() {
         },
         onClose: () => {
           setOrderContext((prev) => ({ ...prev, addItem: true }));
-        },
+        }
       });
       setIndex(index + 1);
     }
@@ -258,7 +258,7 @@ export default function Home() {
       transaction_id: latestTransaction.id,
       date: orderDate,
       reason: reason,
-      status: orderStatus,
+      status: orderStatus
     };
 
     const token = Cookies.get("token");
@@ -284,7 +284,7 @@ export default function Home() {
         },
         onClose: () => {
           setOrderContext((prev) => ({ ...prev, addItem: true }));
-        },
+        }
       });
       setIndex(index + 1);
     }
@@ -300,7 +300,7 @@ export default function Home() {
       arrival_time: arrivalDate,
       capacity: capacity,
       origin_address: originAddress,
-      destination_address: destinationAddress,
+      destination_address: destinationAddress
     };
 
     const token = Cookies.get("token");
@@ -329,7 +329,7 @@ export default function Home() {
           },
           onClose: () => {
             setShipmentContext((prev) => ({ ...prev, addItem: true }));
-          },
+          }
         });
         setIndex(index + 1);
       }
@@ -358,7 +358,7 @@ export default function Home() {
           },
           onClose: () => {
             setShipmentContext((prev) => ({ ...prev, addItem: true }));
-          },
+          }
         });
         setIndex(index + 1);
       }
@@ -393,7 +393,7 @@ export default function Home() {
 
       setShipmentContext((prevState) => ({
         ...prevState,
-        add: !shipmentContext.add,
+        add: !shipmentContext.add
       }));
       setIsOpenCreate(false);
       setIsOpenReturnCreate(false);
@@ -402,7 +402,7 @@ export default function Home() {
     const dataReceipt = {
       order_id: latestOrder?.id ?? "",
       price: price,
-      status: receiptStatus,
+      status: receiptStatus
     };
 
     const token = Cookies.get("token");
@@ -419,7 +419,7 @@ export default function Home() {
       });
     console.log(response);
     if (response.status === 201) {
-      toast.success(response.data.message);
+      // toast.success(response.data.message);
       setOrderCreated(false);
       setReturnOrderCreated(false);
       setTransactionCreated(false);
@@ -446,25 +446,17 @@ export default function Home() {
 
       setShipmentContext((prevState) => ({
         ...prevState,
-        add: !shipmentContext.add,
+        add: !shipmentContext.add
       }));
       setIsOpenCreate(false);
       setIsOpenReturnCreate(false);
       setIndex(0);
     }
-
-    // const token = Cookies.get("token");
-    // console.log(token)
-    // const response = await authApi(token).post(endpoints["inventory"], data)
-    // if(response.status===201){
-    //     console.log("ok")
-    //     toast.success(response.data.message)
-    // }
   };
   const fetchOrdersByCurrentUser = async () => {
     const token = Cookies.get("token");
     const response = await authApi(token).get(
-      endpoints["orders-by-current-user"],
+      endpoints["orders-by-current-user"]
     );
     setOrders(response.data.orders);
   };
@@ -479,7 +471,7 @@ export default function Home() {
     const token = Cookies.get("token");
     const response = await authApi(token).get(
       endpoints["order-by-id"](orderId),
-      { params: { order_id: orderId } },
+      { params: { order_id: orderId } }
     );
     setLatestOrderByCurrentUser(response.data);
   };
@@ -487,7 +479,7 @@ export default function Home() {
     const token = Cookies.get("token");
     const response = await authApi(token).get(
       endpoints["return-order-by-id"](returnOrderId),
-      { params: { return_order_id: returnOrderId } },
+      { params: { return_order_id: returnOrderId } }
     );
     setLatestOrderByCurrentUser(response.data);
   };
@@ -497,7 +489,7 @@ export default function Home() {
       const data = { user_id: currentUser.id ?? Cookies.get("user_id") };
       const response = await authApi(token).get(
         endpoints["latest-order-by-current-user"],
-        { params: data },
+        { params: data }
       );
       setLatestOrderByCurrentUser(response.data);
     }
@@ -515,13 +507,13 @@ export default function Home() {
   const [destinationAddresses, setDestinationAddresses] = useState([]);
   const fetchAutocompleteWithOrigin = async (keyword) => {
     const response = await standardApi().get(
-      endpoints["tomtom-search"](keyword),
+      endpoints["tomtom-search"](keyword)
     );
     setOriginAddresses(response.data.results);
   };
   const fetchAutocompleteWithDestination = async (keyword) => {
     const response = await standardApi().get(
-      endpoints["tomtom-search"](keyword),
+      endpoints["tomtom-search"](keyword)
     );
     setDestinationAddresses(response.data.results);
   };
@@ -563,14 +555,15 @@ export default function Home() {
         type: "line",
         source: {
           type: "geojson",
-          data: geojsonData,
+          data: geojsonData
         },
         paint: {
           "line-color": color,
-          "line-width": 6,
-        },
+          "line-width": 6
+        }
       });
-    } catch (err) {}
+    } catch (err) {
+    }
   };
 
   const route = async () => {
@@ -586,15 +579,15 @@ export default function Home() {
         locations,
         travelMode: "truck",
         vehicleLoadType: "otherHazmatExplosive",
-        vehicleWeight: 8000,
+        vehicleWeight: 8000
       },
-      "grey",
+      "grey"
     );
   };
   const deleteRoute = async () => {
-    if (firstMarker) firstMarker = null;
+    firstMarker = null;
     if (markers.current.length === 2) {
-      markers.current.forEach((marker) => marker.remove());
+      await markers.current.forEach((marker) => marker.remove());
       markers.current = [];
       if (map.current.getSource(layerId.current))
         map.current.removeSource(layerId.current);
@@ -612,30 +605,32 @@ export default function Home() {
     let origin = waypoints[0].split(",");
     const response = await services.reverseGeocode({
       key: import.meta.env.VITE_TOM_TOM_API_KEY,
-      position: { lng: origin[0], lat: origin[1] },
+      position: { lng: origin[0], lat: origin[1] }
     });
+    await deleteRoute();
     const address = response.addresses[0]?.address.freeformAddress;
     if (address) {
       const token = Cookies.get("token");
       const data = {
         status: "breakdown",
-        origin_address_breakdown: address,
+        origin_address_breakdown: address
       };
+      const _id =
+        latestOrderByCurrentUser?.order?.id ||
+        latestOrderByCurrentUser?.return_order?.id;
       for (const shipment of latestOrderByCurrentUser.shipments) {
         const response = await authApi(token).patch(
           endpoints["shipment-detail"](shipment.id),
-          data,
+          data
         );
-        if (response.status === 200) {
-          fetchLatestOrderByCurrentUser();
-          const data = {
-            origin: address,
-            order_id:
-              latestOrderByCurrentUser.order.id ??
-              latestOrderByCurrentUser.return_order.id,
-          };
-          await authApi(token).post(endpoints["breakdown"], data);
-        }
+        console.log({
+          origin: address,
+          order_id: _id
+        });
+        const _response = await authApi(token).post(endpoints["breakdown"], {
+          origin: address,
+          order_id: _id
+        });
       }
     }
   };
@@ -650,7 +645,7 @@ export default function Home() {
       locations,
       travelMode: "truck",
       vehicleLoadType: "otherHazmatExplosive",
-      vehicleWeight: 8000,
+      vehicleWeight: 8000
     });
     waypoints = response.routes[0].legs[0].points;
     waypoints = waypoints.map((point) => `${point.lng},${point.lat}`);
@@ -665,13 +660,13 @@ export default function Home() {
         type: "geojson",
         data: {
           type: "FeatureCollection",
-          features: [],
-        },
+          features: []
+        }
       },
       paint: {
         "line-color": "orange",
-        "line-width": 6,
-      },
+        "line-width": 6
+      }
     });
     const updateFirstMarker = (lng, lat) => {
       if (firstMarker) {
@@ -694,9 +689,9 @@ export default function Home() {
             locations,
             travelMode: "truck",
             vehicleLoadType: "otherHazmatExplosive",
-            vehicleWeight: 8000,
+            vehicleWeight: 8000
           },
-          "orange",
+          "orange"
         );
         const geojsonData = response.toGeoJson();
         map.current.getSource(layerId.current).setData(geojsonData);
@@ -713,15 +708,15 @@ export default function Home() {
               async function updateStatus() {
                 const token = Cookies.get("token");
                 const data = {
-                  status: "delivered",
+                  status: "delivered"
                 };
                 const response = await authApi(token).patch(
                   endpoints["shipment-detail-delivery"](
                     latestOrderByCurrentUser.shipments[
-                      latestOrderByCurrentUser.shipments.length - 1
-                    ].id,
+                    latestOrderByCurrentUser.shipments.length - 1
+                      ].id
                   ),
-                  data,
+                  data
                 );
                 if (response.status === 200) {
                   fetchLatestOrderByCurrentUser();
@@ -730,7 +725,7 @@ export default function Home() {
               }
 
               updateStatus();
-            },
+            }
           });
         }
       } catch (err) {
@@ -740,11 +735,11 @@ export default function Home() {
   };
   const geoCodeAddress = async (address) => {
     if (markers.current.length === 2) {
-      deleteRoute();
+      await deleteRoute();
     }
     const response = await services.geocode({
       key: import.meta.env.VITE_TOM_TOM_API_KEY,
-      query: address,
+      query: address
     });
     addMarker({ lngLat: response?.results[0].position });
     map.current.setCenter(response?.results[0].position);
@@ -756,22 +751,25 @@ export default function Home() {
 
   useEffect(() => {
     if (Object.keys(latestOrderByCurrentUser).length !== 0) {
-      firstMarker = null;
+      const deleteRoute = async () => {
+        await deleteRoute();
+      };
+      deleteRoute();
       latestOrderByCurrentUser.shipments.length
         ? geoCodeAddress(
-            latestOrderByCurrentUser.shipments[
-              latestOrderByCurrentUser.shipments.length - 1
-            ]?.destination_address,
-          )
+          latestOrderByCurrentUser.shipments[
+          latestOrderByCurrentUser.shipments.length - 1
+            ]?.destination_address
+        )
         : geoCodeAddress(
-            latestOrderByCurrentUser.shipments.destination_address,
-          );
+          latestOrderByCurrentUser.shipments.destination_address
+        );
       latestOrderByCurrentUser.shipments.length
         ? geoCodeAddress(
-            latestOrderByCurrentUser.shipments[
-              latestOrderByCurrentUser.shipments.length - 1
-            ]?.origin_address,
-          )
+          latestOrderByCurrentUser.shipments[
+          latestOrderByCurrentUser.shipments.length - 1
+            ]?.origin_address
+        )
         : geoCodeAddress(latestOrderByCurrentUser.shipments.origin_address);
     }
   }, [latestOrderByCurrentUser]);
@@ -781,7 +779,7 @@ export default function Home() {
       key: import.meta.env.VITE_TOM_TOM_API_KEY,
       container: mapRef.current,
       center: SAN_FRANCISCO,
-      zoom: 14,
+      zoom: 14
     });
     map.current.on("click", addMarker);
   }, []);
@@ -795,19 +793,19 @@ export default function Home() {
         if (Object.keys(latestOrderByCurrentUser).length !== 0) {
           latestOrderByCurrentUser.shipments.length
             ? geoCodeAddress(
-                latestOrderByCurrentUser.shipments[
-                  latestOrderByCurrentUser.shipments.length - 1
-                ]?.destination_address,
-              )
+              latestOrderByCurrentUser.shipments[
+              latestOrderByCurrentUser.shipments.length - 1
+                ]?.destination_address
+            )
             : geoCodeAddress(
-                latestOrderByCurrentUser.shipments.destination_address,
-              );
+              latestOrderByCurrentUser.shipments.destination_address
+            );
           latestOrderByCurrentUser.shipments.length
             ? geoCodeAddress(
-                latestOrderByCurrentUser.shipments[
-                  latestOrderByCurrentUser.shipments.length - 1
-                ]?.origin_address,
-              )
+              latestOrderByCurrentUser.shipments[
+              latestOrderByCurrentUser.shipments.length - 1
+                ]?.origin_address
+            )
             : geoCodeAddress(latestOrderByCurrentUser.shipments.origin_address);
         }
       });
@@ -827,11 +825,11 @@ export default function Home() {
     const token = Cookies.get("token");
     const data = {
       user_one_id: currentUser.id,
-      user_two_id: partner,
+      user_two_id: partner
     };
     const response = await authApi(token).post(
       endpoints["conversations"],
-      data,
+      data
     );
     setConversation(response.data);
   }, [currentUser.id, partner]);
@@ -840,7 +838,7 @@ export default function Home() {
     if (conversation) {
       const token = Cookies.get("token");
       const response = await authApi(token).get(endpoints["get-messages"], {
-        params: { conversation_id: conversation.conversation.id ?? "" },
+        params: { conversation_id: conversation.conversation.id ?? "" }
       });
       setMessages(response.data.messages);
     }
@@ -854,11 +852,11 @@ export default function Home() {
     const message = {
       sender_id: currentUser.id,
       content: text,
-      conversation_id: conversation.conversation.id,
+      conversation_id: conversation.conversation.id
     };
     const response = await authApi(token).post(
       endpoints["send-message"],
-      message,
+      message
     );
     if (response.status === 200 && conversation) getMessages();
   }, [conversation, text]);
@@ -898,7 +896,7 @@ export default function Home() {
 
   useEffect(() => {
     conversation &&
-      setFormattedDate(timeAgo(conversation?.user_two?.last_active_at));
+    setFormattedDate(timeAgo(conversation?.user_two?.last_active_at));
   }, [conversation]);
 
   const fetchSenderById = async (id) => {
@@ -932,7 +930,7 @@ export default function Home() {
       if (!data) return;
       const response = await authApi(token).post(
         endpoints["update-status"],
-        data,
+        data
       );
     }
 
@@ -941,7 +939,7 @@ export default function Home() {
       .joining(async (data) => {
         const _data = {
           is_active: true,
-          user_id: data.id,
+          user_id: data.id
         };
         await updateStatus(_data);
       })
@@ -955,7 +953,7 @@ export default function Home() {
   async function fetchReturnOrdersByCurrentUser() {
     const token = Cookies.get("token");
     const response = await authApi(token).get(
-      endpoints["return-orders-by-current-user"],
+      endpoints["return-orders-by-current-user"]
     );
     setReturnOrders(response.data.return_orders);
   }
@@ -979,7 +977,7 @@ export default function Home() {
   const confirmOtp = async () => {
     const token = Cookies.get("token");
     const response = await authApi(token).post(endpoints["confirm-otp"], {
-      otp: otp,
+      otp: otp
     });
     if (response.status === 200) {
       setPaymentBtn(true);
@@ -990,15 +988,15 @@ export default function Home() {
   const confirmPay = async () => {
     const token = Cookies.get("token");
     const data = {
-      status: "paid",
+      status: "paid"
     };
     const response = await authApi(token).patch(
       latestOrderByCurrentUser.order.id
         ? endpoints["order-detail-delivery"](latestOrderByCurrentUser.order.id)
         : endpoints["return-order-detail-delivery"](
-            latestOrderByCurrentUser.return_order.id,
-          ),
-      data,
+          latestOrderByCurrentUser.return_order.id
+        ),
+      data
     );
     if (response.status === 200) {
       setIsPaid(true);
@@ -1013,24 +1011,24 @@ export default function Home() {
   const confirmOrderDelivery = async () => {
     const token = Cookies.get("token");
     const data = {
-      status: "shipping",
+      status: "shipping"
     };
     await authApi(token).patch(
       endpoints["confirm-order"](latestOrderByCurrentUser?.order?.id),
-      data,
+      data
     );
   };
 
   const confirmReturnOrderDelivery = async () => {
     const token = Cookies.get("token");
     const data = {
-      status: "shipping",
+      status: "shipping"
     };
     await authApi(token).patch(
       endpoints["confirm-return-order"](
-        latestOrderByCurrentUser?.return_order?.id,
+        latestOrderByCurrentUser?.return_order?.id
       ),
-      data,
+      data
     );
   };
 
@@ -1086,7 +1084,7 @@ export default function Home() {
       const scrollAmount = direction === "left" ? -200 : 200;
       scrollOrderContainerRef.current.scrollBy({
         left: scrollAmount,
-        behavior: "smooth",
+        behavior: "smooth"
       });
     }
   };
@@ -1097,7 +1095,7 @@ export default function Home() {
       const scrollAmount = direction === "left" ? -200 : 200;
       scrollReturnOrderContainerRef.current.scrollBy({
         left: scrollAmount,
-        behavior: "smooth",
+        behavior: "smooth"
       });
     }
   };
@@ -1398,7 +1396,8 @@ export default function Home() {
                             value={unit}
                             onChange={(e) => setUnit(e.target.value)}
                           >
-                            <option selected={true}>Select your option</option>;
+                            <option selected={true}>Select your option</option>
+                            ;
                             {units.map((wh, index) => {
                               return (
                                 <option key={index} value={wh}>
@@ -1461,7 +1460,8 @@ export default function Home() {
                             }}
                           />
                           {openAutocompleteOriginForm && originAddresses && (
-                            <div className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
+                            <div
+                              className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
                               {originAddresses.map((address, index) => {
                                 return (
                                   <div
@@ -1470,7 +1470,7 @@ export default function Home() {
                                     onClick={() => {
                                       setOpenAutocompleteOriginForm(false);
                                       setOriginAddress(
-                                        address.address.freeformAddress,
+                                        address.address.freeformAddress
                                       );
                                     }}
                                   >
@@ -1507,7 +1507,8 @@ export default function Home() {
                           />
                           {openAutocompleteDestinationForm &&
                             destinationAddresses && (
-                              <div className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
+                              <div
+                                className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
                                 {destinationAddresses.map((address, index) => {
                                   return (
                                     <div
@@ -1515,10 +1516,10 @@ export default function Home() {
                                       className="mb-1 cursor-pointer px-3 py-2"
                                       onClick={() => {
                                         setOpenAutocompleteDestinationForm(
-                                          false,
+                                          false
                                         );
                                         setDestinationAddress(
-                                          address.address.freeformAddress,
+                                          address.address.freeformAddress
                                         );
                                       }}
                                     >
@@ -2030,7 +2031,8 @@ export default function Home() {
                             value={unit}
                             onChange={(e) => setUnit(e.target.value)}
                           >
-                            <option selected={true}>Select your option</option>;
+                            <option selected={true}>Select your option</option>
+                            ;
                             {units.map((wh, index) => {
                               return (
                                 <option key={index} value={wh}>
@@ -2105,7 +2107,8 @@ export default function Home() {
                             }}
                           />
                           {openAutocompleteOriginForm && originAddresses && (
-                            <div className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
+                            <div
+                              className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
                               {originAddresses.map((address, index) => {
                                 return (
                                   <div
@@ -2114,7 +2117,7 @@ export default function Home() {
                                     onClick={() => {
                                       setOpenAutocompleteOriginForm(false);
                                       setOriginAddress(
-                                        address.address.freeformAddress,
+                                        address.address.freeformAddress
                                       );
                                     }}
                                   >
@@ -2151,7 +2154,8 @@ export default function Home() {
                           />
                           {openAutocompleteDestinationForm &&
                             destinationAddresses && (
-                              <div className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
+                              <div
+                                className="bottom-100 absolute z-10 w-full rounded-b-sm border border-t-0 border-black bg-white shadow-sm">
                                 {destinationAddresses.map((address, index) => {
                                   return (
                                     <div
@@ -2159,10 +2163,10 @@ export default function Home() {
                                       className="mb-1 cursor-pointer px-3 py-2"
                                       onClick={() => {
                                         setOpenAutocompleteDestinationForm(
-                                          false,
+                                          false
                                         );
                                         setDestinationAddress(
-                                          address.address.freeformAddress,
+                                          address.address.freeformAddress
                                         );
                                       }}
                                     >
@@ -2417,7 +2421,8 @@ export default function Home() {
         </section>
         <section className="flex gap-4">
           <section className="w-[calc(50%-8px)] overflow-x-auto">
-            <section className="mt-4 flex items-center justify-between rounded-tl-md rounded-tr-md bg-orange-500 p-2 text-white">
+            <section
+              className="mt-4 flex items-center justify-between rounded-tl-md rounded-tr-md bg-orange-500 p-2 text-white">
               <h3 className="flex flex-col gap-2">
                 Order list&nbsp;
                 <svg
@@ -2495,11 +2500,35 @@ export default function Home() {
                   return (
                     <section
                       onClick={() => getOrderById(order.id)}
-                      className="flex min-w-[160px] flex-col items-start gap-2 text-wrap break-words rounded-md border border-gray-500 p-2"
+                      className="flex min-w-[160px] flex-col items-start justify-between gap-2 text-wrap break-words rounded-md border border-gray-500 p-2"
                       id={index}
                     >
                       <h4 className="text-md text-wrap break-words">
                         {order.id}
+                        <div
+                          onClick={async () =>
+                            await navigator.clipboard.writeText(order.id)
+                          }
+                          className="ml-2 inline-block cursor-pointer rounded-md bg-orange-500 p-1"
+                        >
+                          <svg
+                            className="h-6 w-6 text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"
+                            />
+                          </svg>
+                        </div>
                       </h4>
                       <span
                         className={`flex items-center justify-center gap-2`}
@@ -2532,6 +2561,9 @@ export default function Home() {
                           ""
                         )}
                       </span>
+                      <span className="mt-1 italic">
+                        {timeAgo(order.created_at)}
+                      </span>
                     </section>
                   );
                 })}
@@ -2539,7 +2571,8 @@ export default function Home() {
             )}
           </section>
           <section className="w-[calc(50%-8px)]">
-            <section className="mt-4 flex items-center justify-between rounded-tl-md rounded-tr-md bg-orange-500 p-2 text-white">
+            <section
+              className="mt-4 flex items-center justify-between rounded-tl-md rounded-tr-md bg-orange-500 p-2 text-white">
               <h3 className="flex flex-col gap-2">
                 Return order list&nbsp;
                 <svg
@@ -2619,10 +2652,36 @@ export default function Home() {
                       onClick={() => {
                         getReturnOrderById(returnOrder.id);
                       }}
-                      className="flex min-w-[160px] flex-col items-start gap-2 rounded-md border border-gray-500 p-2"
+                      className="flex min-w-[160px] flex-col items-start justify-between gap-2 rounded-md border border-gray-500 p-2"
                       id={index}
                     >
-                      <h4 className="text-md">{returnOrder.id}</h4>
+                      <h4 className="text-md">
+                        {returnOrder.id}
+                        <div
+                          onClick={async () =>
+                            await navigator.clipboard.writeText(returnOrder.id)
+                          }
+                          className="ml-2 inline-block cursor-pointer rounded-md bg-orange-500 p-1"
+                        >
+                          <svg
+                            className="h-6 w-6 text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"
+                            />
+                          </svg>
+                        </div>
+                      </h4>
                       <span
                         className={`flex items-center justify-center gap-2`}
                       >
@@ -2653,6 +2712,9 @@ export default function Home() {
                         ) : (
                           ""
                         )}
+                      </span>
+                      <span className="mt-1 italic">
+                        {timeAgo(returnOrder.created_at)}
                       </span>
                     </section>
                   );
@@ -2737,13 +2799,13 @@ export default function Home() {
               <h4>
                 <span className="font-bold">Payment status</span>:{" "}
                 {(latestOrderByCurrentUser?.order?.status === "paid" ??
-                latestOrderByCurrentUser?.return_order?.status === "paid") ? (
+                  latestOrderByCurrentUser?.return_order?.status === "paid") ? (
                   <span className="rounded-sm bg-green-500 p-1 text-white">
                     Paid
                   </span>
                 ) : (
                   (latestOrderByCurrentUser?.order?.status ??
-                  latestOrderByCurrentUser?.return_order?.status)
+                    latestOrderByCurrentUser?.return_order?.status)
                 )}
               </h4>
               <h4>
@@ -2915,7 +2977,8 @@ export default function Home() {
                                     {dateFormat(new Date().toISOString())}
                                   </span>
                                 </div>
-                                <p className="mt-1 w-fit rounded-md bg-orange-500 p-3 text-sm font-normal text-white dark:text-white">
+                                <p
+                                  className="mt-1 w-fit rounded-md bg-orange-500 p-3 text-sm font-normal text-white dark:text-white">
                                   {message.content}
                                 </p>
                                 <span className="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -2940,6 +3003,30 @@ export default function Home() {
                     placeholder="message"
                   />
                 </div>
+                <button
+                  onClick={async () =>
+                    setText(await navigator.clipboard.readText())
+                  }
+                  className="rounded-md bg-orange-500 p-3 text-white"
+                >
+                  <svg
+                    className="h-6 w-6 text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 20H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2.429M7 8h3M8 8V4h4v2m4 0V5h-4m3 4v3a1 1 0 0 1-1 1h-3m9-3v9a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-6.397a1 1 0 0 1 .27-.683l2.434-2.603a1 1 0 0 1 .73-.317H19a1 1 0 0 1 1 1Z"
+                    />
+                  </svg>
+                </button>
                 <button
                   onClick={async () => await getMessages()}
                   className="rounded-md bg-orange-500 p-3 text-white"
@@ -2988,7 +3075,8 @@ export default function Home() {
                       </div>
                       <div className="w-[30%]">
                         <div className="relative">
-                          <div className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600">
+                          <div
+                            className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600">
                             <span className="font-medium text-gray-600 dark:text-gray-300">
                               {user.name.split(" ")[0].at(0) +
                                 user.name.split(" ")[1].at(0)}

@@ -453,13 +453,43 @@ export default function Transaction() {
     );
     if (response.status === 200) {
       setOrderId(response.data.order.id);
-      setOriginAddress(response.data.origin_address);
+      setOriginAddress(response.data.shipment.origin_address);
       setCapacity(response.data.shipment.capacity);
       setDestinationAddress(response.data.shipment.destination_address);
       setEstimateDate(response.data.shipment.estimated_arrival_time);
       setArrivalDate(response.data.shipment.arrival_time);
     } else toast.warning("Order is not breakdown");
   };
+
+  const [vehicleNames, setVehicleNames] = useState(null);
+  const fetchVehicleName = useCallback(async (id) => {
+    const token = Cookies.get("token");
+    const response = await authApi(token).get(endpoints["vehicle-detail"](id));
+    if (response.status === 200) {
+      const response_ = await authApi(token).get(
+        endpoints["user-detail"](response.data.vehicle.carrier_id),
+      );
+      if (response_.status === 200) {
+        return response_.data.user.name;
+      }
+    }
+  }, []);
+  const fetchAllVehicleNames = useCallback(async () => {
+    const names = {};
+    if (!vehicleNames) {
+      for (const d of vehicles) {
+        if (!names[d.id]) {
+          names[d.id] = await fetchVehicleName(d.id);
+        }
+      }
+      setVehicleNames(names);
+    }
+  }, [vehicles]);
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      fetchAllVehicleNames();
+    }
+  }, [vehicles]);
 
   return (
     <>
@@ -829,6 +859,30 @@ export default function Transaction() {
                   />
                 </div>
                 <button
+                  onClick={async () =>
+                    setText(await navigator.clipboard.readText())
+                  }
+                  className="rounded-md bg-orange-500 p-3 text-white"
+                >
+                  <svg
+                    className="h-6 w-6 text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 20H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2.429M7 8h3M8 8V4h4v2m4 0V5h-4m3 4v3a1 1 0 0 1-1 1h-3m9-3v9a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-6.397a1 1 0 0 1 .27-.683l2.434-2.603a1 1 0 0 1 .73-.317H19a1 1 0 0 1 1 1Z"
+                    />
+                  </svg>
+                </button>
+                <button
                   onClick={async () => await getMessages()}
                   className="rounded-md bg-orange-500 p-3 text-white"
                 >
@@ -1101,16 +1155,17 @@ export default function Transaction() {
                   onChange={(e) => setVehicle(e.target.value)}
                 >
                   <option selected={true}>Select your option</option>
-                  {vehicles.map((s, index) => {
-                    return (
-                      <option key={index} value={s.id}>
-                        {s.type.toString().at(0).toUpperCase() +
-                          s.type.slice(1) +
-                          " - " +
-                          s.id}
-                      </option>
-                    );
-                  })}
+                  {vehicleNames !== null &&
+                    vehicles.map((s, index) => {
+                      return (
+                        <option key={index} value={s.id}>
+                          {s.type.toString().at(0).toUpperCase() +
+                            s.type.slice(1) +
+                            " - " +
+                            (vehicleNames[s.id] || s.id)}
+                        </option>
+                      );
+                    })}
                 </select>
               </div>
               <div className="mb-4">

@@ -1,6 +1,6 @@
 import Sidebar from "../components/Sidebar.jsx";
 import { TruckItem } from "../components/TruckItem.jsx";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import TableShipment from "../components/TableShipment.jsx";
 import { DetailPageContext } from "../helper/Context.js";
 import Cookies from "js-cookie";
@@ -349,6 +349,35 @@ export default function Shipment() {
     const response = await authApi(token).get(endpoints["transaction-latest"]);
     setLatestTransaction(response.data.transaction);
   };
+  const [vehicleNames, setVehicleNames] = useState(null);
+  const fetchVehicleName = useCallback(async (id) => {
+    const token = Cookies.get("token");
+    const response = await authApi(token).get(endpoints["vehicle-detail"](id));
+    if (response.status === 200) {
+      const response_ = await authApi(token).get(
+        endpoints["user-detail"](response.data.vehicle.carrier_id),
+      );
+      if (response_.status === 200) {
+        return response_.data.user.name;
+      }
+    }
+  }, []);
+  const fetchAllVehicleNames = useCallback(async () => {
+    const names = {};
+    if (!vehicleNames) {
+      for (const d of vehicles) {
+        if (!names[d.id]) {
+          names[d.id] = await fetchVehicleName(d.id);
+        }
+      }
+      setVehicleNames(names);
+    }
+  }, [vehicles]);
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      fetchAllVehicleNames();
+    }
+  }, [vehicles]);
   return (
     <>
       <ToastContainer position="top-right" />
@@ -1045,16 +1074,17 @@ export default function Shipment() {
                                 <option selected={true}>
                                   Select your option
                                 </option>
-                                {vehicles.map((s, index) => {
-                                  return (
-                                    <option key={index} value={s.id}>
-                                      {s.type.toString().at(0).toUpperCase() +
-                                        s.type.slice(1) +
-                                        " - " +
-                                        s.id}
-                                    </option>
-                                  );
-                                })}
+                                {vehicleNames !== null &&
+                                  vehicles.map((s, index) => {
+                                    return (
+                                      <option key={index} value={s.id}>
+                                        {s.type.toString().at(0).toUpperCase() +
+                                          s.type.slice(1) +
+                                          " - " +
+                                          vehicleNames[s.id]}
+                                      </option>
+                                    );
+                                  })}
                               </select>
                               {/*<div className="basis-1/2">*/}
                               {/*  <label className="mb-2 block" htmlFor="status">*/}
