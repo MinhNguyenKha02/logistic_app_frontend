@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { authApi, endpoints } from "../helper/Apis.js";
 import { ToastContainer, toast } from "react-toastify";
 import api from "js-cookie";
-import { dateFormat } from "../helper/dateFormat.js";
+import { dateFormat, formatDate, isDate } from "../helper/dateFormat.js";
 
 export default function TableShipment() {
   const [Data, setData] = useState([]);
@@ -117,7 +117,10 @@ export default function TableShipment() {
   };
 
   const handleSearch = async (e) => {
-    const keyword = e.target.value;
+    let keyword = e.target.value;
+    if (isDate(keyword)) {
+      keyword = formatDate(keyword);
+    }
     const token = Cookies.get("token");
     console.log(token);
     const response = await authApi(token).get(

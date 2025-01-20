@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import api from "js-cookie";
 import { echo } from "../helper/echo.js";
-import { dateFormat } from "../helper/dateFormat.js";
+import { dateFormat, formatDate, isDate } from "../helper/dateFormat.js";
 
 export default function TableReturnOrder() {
   const [Data, setData] = useState([]);
@@ -132,7 +132,10 @@ export default function TableReturnOrder() {
   };
 
   const handleSearch = async (e) => {
-    const keyword = e.target.value;
+    let keyword = e.target.value;
+    if (isDate(keyword)) {
+      keyword = formatDate(keyword);
+    }
     const token = Cookies.get("token");
     const response = await authApi(token).get(
       endpoints["search-return-order"](keyword),
