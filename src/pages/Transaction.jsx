@@ -237,7 +237,7 @@ export default function Transaction() {
     const dataShipment = {
       vehicle_id: vehicle,
       date: shipmentDate,
-      status: shipmentStatus,
+      status: "shipping",
       estimated_arrival_time: estimateDate,
       arrival_time: arrivalDate,
       capacity: capacity,

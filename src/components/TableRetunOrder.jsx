@@ -159,9 +159,6 @@ export default function TableReturnOrder() {
       case "reason":
         direction = directions[orderDirectionReasonIndex];
         break;
-      case "product_id":
-        direction = directions[orderDirectionProductIndex];
-        break;
       case "customer_id":
         direction = directions[orderDirectionCustomerIndex];
         break;
@@ -252,23 +249,7 @@ export default function TableReturnOrder() {
       });
   }, []);
   const [userNames, setuserNames] = useState({});
-  const [productNames, setProductNames] = useState({});
 
-  const fetchProductName = async (id) => {
-    const token = Cookies.get("token");
-    const response = await authApi(token).get(endpoints["product-detail"](id));
-    return response.data.product.name;
-  };
-
-  const fetchAllProductNames = React.useCallback(async () => {
-    const names = {};
-    for (const d of Data.data) {
-      if (!names[d.product_id]) {
-        names[d.product_id] = await fetchProductName(d.product_id);
-      }
-    }
-    setProductNames(names);
-  }, [Data]);
   const fetchUserName = async (id) => {
     const token = Cookies.get("token");
     const response = await authApi(token).get(endpoints["user-detail"](id));
@@ -289,11 +270,10 @@ export default function TableReturnOrder() {
     const fetchData = async () => {
       if (Data && Data?.data) {
         await fetchAllUserNames();
-        await fetchAllProductNames();
       }
     };
     fetchData();
-  }, [Data, fetchAllUserNames, fetchAllProductNames]);
+  }, [Data, fetchAllUserNames]);
   return (
     <>
       <ToastContainer position="top-right" />
@@ -688,76 +668,6 @@ export default function TableReturnOrder() {
                       </th>
                       <th
                         onClick={() => {
-                          orderBy("product_id");
-                          setOrderDirectionProductIndex(
-                            orderDirectionProductIndex === 2
-                              ? 0
-                              : orderDirectionProductIndex + 1,
-                          );
-                        }}
-                        className="p-2"
-                      >
-                        <span>Product&nbsp;</span>
-                        {orderDirectionProductIndex === 0 && (
-                          <svg
-                            className="inline-block size-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m5 15 7-7 7 7"
-                            />
-                          </svg>
-                        )}
-                        {orderDirectionProductIndex === 1 && (
-                          <svg
-                            className="inline-block h-6 w-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m19 9-7 7-7-7"
-                            />
-                          </svg>
-                        )}
-                        {orderDirectionProductIndex === 2 && (
-                          <svg
-                            className="inline-block h-6 w-6 text-white dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="m8 15 4 4 4-4m0-6-4-4-4 4"
-                            />
-                          </svg>
-                        )}
-                      </th>
-                      <th
-                        onClick={() => {
                           orderBy("date");
                           setOrderDirectionDateIndex(
                             orderDirectionDateIndex === 2
@@ -1114,9 +1024,6 @@ export default function TableReturnOrder() {
                               )}
                             </td>
                             <td className="p-2">{d.reason}</td>
-                            <td className="p-2">
-                              {productNames[d.product_id]}
-                            </td>
                             <td className="p-2">{dateFormat(d.date)}</td>
                             <td className="p-2">{d.transaction_id}</td>
                             <td className="p-2">{dateFormat(d.created_at)}</td>

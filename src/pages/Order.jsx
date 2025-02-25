@@ -215,7 +215,6 @@ export default function Home() {
 
     const dataOrder = {
       customer_id: customer,
-      product_id: product,
       transaction_id: latestTransaction.id,
       date: orderDate,
       status: orderStatus
@@ -229,7 +228,6 @@ export default function Home() {
           const data = err.response.data.errors;
           console.log(data);
           data.customer_id?.forEach((d) => toast.error(d));
-          data.product_id?.forEach((d) => toast.error(d));
           data.transaction_id?.forEach((d) => toast.error(d));
           data.date?.forEach((d) => toast.error(d));
           data.status?.forEach((d) => toast.error(d));
@@ -254,7 +252,6 @@ export default function Home() {
 
     const dataReturnOrder = {
       customer_id: customer,
-      product_id: product,
       transaction_id: latestTransaction.id,
       date: orderDate,
       reason: reason,
@@ -269,7 +266,6 @@ export default function Home() {
           const data = err.response.data.errors;
           console.log(data);
           data.customer_id?.forEach((d) => toast.error(d));
-          data.product_id?.forEach((d) => toast.error(d));
           data.transaction_id?.forEach((d) => toast.error(d));
           data.date?.forEach((d) => toast.error(d));
           data.reason?.forEach((d) => toast.error(d));
@@ -635,6 +631,42 @@ export default function Home() {
     }
   };
   let firstMarker = null;
+  const [confirmOrderModel, setConfirmOrderModel]=useState(false);
+  const [orderStatuses, setOrderStatuses]=useState(['delivered', 'undelivered']);
+  const [_orderStatus, _setOrderStatus]=useState("");
+  const [orderNote, setOrderNote] = useState("")
+  const confirmOrder = async () => {
+    if(_orderStatus==="") {
+      toast.info("Please enter your order status");
+      return;
+    }
+    const token = Cookies.get("token");
+    let data ={}
+    if(_orderStatus==="delivered"){
+      data = {
+        status: _orderStatus,
+      };
+    }else if(_orderStatus==="undelivered"){
+      data = {
+        status: _orderStatus,
+        note: orderNote
+      };
+    }
+    console.log(data)    
+    const response = await authApi(token).patch(
+      endpoints["shipment-detail-delivery"](
+        latestOrderByCurrentUser.shipments[
+        latestOrderByCurrentUser.shipments.length - 1
+          ].id
+      ),
+      data
+    );
+    if (response.status === 200) {
+      setConfirmOrderModel(false)
+      fetchLatestOrderByCurrentUser();
+      fetchOrdersByCurrentUser();
+    } 
+  }
   const startTracking = async () => {
     const key = import.meta.env.VITE_TOM_TOM_API_KEY;
     const locations = markers.current
@@ -703,30 +735,7 @@ export default function Home() {
           let [lng, lat] = waypoints[0].split(",");
           updateFirstMarker(Number(lng), Number(lat));
           markers.current[0].remove();
-          toast.success("You have arrived at your destination!", {
-            onClose: () => {
-              async function updateStatus() {
-                const token = Cookies.get("token");
-                const data = {
-                  status: "delivered"
-                };
-                const response = await authApi(token).patch(
-                  endpoints["shipment-detail-delivery"](
-                    latestOrderByCurrentUser.shipments[
-                    latestOrderByCurrentUser.shipments.length - 1
-                      ].id
-                  ),
-                  data
-                );
-                if (response.status === 200) {
-                  fetchLatestOrderByCurrentUser();
-                  fetchOrdersByCurrentUser();
-                }
-              }
-
-              updateStatus();
-            }
-          });
+          setConfirmOrderModel(true)
         }
       } catch (err) {
         console.log(err);
@@ -751,10 +760,10 @@ export default function Home() {
 
   useEffect(() => {
     if (Object.keys(latestOrderByCurrentUser).length !== 0) {
-      const deleteRoute = async () => {
-        await deleteRoute();
-      };
-      deleteRoute();
+      // const deleteRoute = async () => {
+      //   await deleteRoute();
+      // };
+      // deleteRoute();
       latestOrderByCurrentUser.shipments.length
         ? geoCodeAddress(
           latestOrderByCurrentUser.shipments[
@@ -1105,6 +1114,49 @@ export default function Home() {
       <ToastContainer position="top-right" />
 
       <Sidebar />
+
+      {confirmOrderModel ===true && (
+        <section className="fixed flex justify-center items-center h-screen w-screen z-50">
+          <section className="w-fit p-4 bg-white border border-orange-500 rounded-md">
+            <div className="mb-3 flex justify-between">
+            <h3 className="text-lg">Confirm order</h3>
+            <button onClick={()=>setConfirmOrderModel(false)} className="text-lg">
+              X
+            </button>
+            </div>
+            
+            <select name="" id="" onChange={(e) => {_setOrderStatus(e.target.value)}} onClick={(e) => {_setOrderStatus(e.target.value)}}>
+              <option>Enter order status</option>
+              {orderStatuses.map((status) => (
+                <option value={status} key={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            {_orderStatus === "undelivered" && (
+              <div className="mt-3">
+                {
+                  ["customer not available", "wrong address", "other"].map((reason) => (
+                    <div key={reason}>
+                      <input
+                        type="radio"
+                        name="reason"
+                        value={reason}
+                        onChange={(e) => setOrderNote(e.target.value)}
+                      />
+                      <label className="ml-2" htmlFor="reason">{reason}</label>
+                    </div>
+                  ))  
+                }
+              </div>
+              )}
+            <button onClick={confirmOrder} className="bg-orange-500 w-full text-white px-3 py-2 rounded-md mt-3">
+              Confirm
+            </button>
+          </section>
+        </section>
+      )}
+
       <main className="h-screen flex-row bg-gray-100 p-4 sm:ml-64">
         <section className="h-fit">
           <h3 className="text-md mb-3 font-semibold">Order page</h3>
@@ -2498,7 +2550,7 @@ export default function Home() {
               >
                 {orders.map((order, index) => {
                   return (
-                    <section
+                    <section key={index}
                       onClick={() => getOrderById(order.id)}
                       className="flex min-w-[160px] flex-col items-start justify-between gap-2 text-wrap break-words rounded-md border border-gray-500 p-2"
                       id={index}
@@ -2538,7 +2590,6 @@ export default function Home() {
                         >
                           {order.status}
                         </span>
-
                         {order.status === "pending" &&
                         currentUser.role === "driver" ? (
                           <svg
@@ -2561,6 +2612,9 @@ export default function Home() {
                           ""
                         )}
                       </span>
+                      {order.status==='undelivered' && (
+                            <span className="mt-1 text-lg">{order.note}</span>
+                          )}
                       <span className="mt-1 italic">
                         {timeAgo(order.created_at)}
                       </span>
